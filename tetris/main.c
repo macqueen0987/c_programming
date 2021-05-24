@@ -7,7 +7,7 @@
 clock_t startDropT, endT, startGroundT; //시간에 대한 변수를 선언
 int x = 8, y = 0;                       //게임 필드를 그리기 시작하는 위치
 int m = 10, n = 5;                      //맨 처음 메뉴화면 그리기 시작하는 위치
-int g = 20, h = 5;
+int g = 23, h = 5;                      //(민규: 20->23으로 수정)
 RECT blockSize;                         //사각형 좌표를 저장하기 위한 자료형
 int blockForm;                          //블럭의 종류
 int blockRotation = 0;                  //블럭 회전
@@ -201,7 +201,9 @@ int block[7][4][4][4] = {
     }
 };
 
-int space[20 + 1][10 + 2] = {
+int space[22 + 1][10 + 2] = {
+    {0,0,0,0,0,0,0,0,0,0,0,0},
+    {1,0,0,0,0,0,0,0,0,0,0,1},
     {1,0,0,0,0,0,0,0,0,0,0,1},
     {1,0,0,0,0,0,0,0,0,0,0,1},
     {1,0,0,0,0,0,0,0,0,0,0,1},
@@ -223,7 +225,7 @@ int space[20 + 1][10 + 2] = {
     {1,0,0,0,0,0,0,0,0,0,0,1},
     {1,0,0,0,0,0,0,0,0,0,0,1},
     {1,1,1,1,1,1,1,1,1,1,1,1}
-}; //(민규) 높이를 15에서 20으로 늘렸습니다.
+}; //높이를 20에서 23으로 늘렸습니다.(Game Over 알고리즘을 위해)
 
 void Init();                           //콘솔창 깜빡이 방지, 커서 숨기기
 void gotoxy(int x, int y);             //x좌표 y좌표로 커서 옮기기
@@ -238,12 +240,14 @@ void RemoveLine();                     //1줄이 되었다면 블럭을 제거합니다. 그 줄
 void DrawMap();                        //맵의 형태(가장자리 태두리)만 그리기
 void DrawBlock();                      //블럭을 그리기
 void InputKey();                       //키 입력받기
+void SolidLine();                      //EraseFiled 안에 있는 함수, 실선을 그리기 위한 함수
 
 
 int main() {
 
     Init();
     int z;
+    int title_end = 0;
     int color = 1;
     while (_kbhit() == 0) {
         SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color % 16);	if (_kbhit()) break;
@@ -257,28 +261,61 @@ int main() {
         gotoxy(0 + m, 7 + n); printf("                                                  "); Sleep(100); if (_kbhit()) break;
         gotoxy(13 + m, 9 + n); printf("Press any key to start");
         for (z = 0; z < 50; z++) {
-            Sleep(30); if (_kbhit()) { y = 1; break; }
+            Sleep(30); if (_kbhit()) { title_end = 1; break; }
         }
         color++;
         if (color % 16 == 0)
             color++;
-        if (y == 1)
+        if (title_end == 1)
             break;
     }
-
-    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
-    startDropT = clock();
-    CreateRandomForm();
-    system("cls");
-    DrawMap();
 
 
     while (true)
     {
-        DropBlock();
-        BlockToGround();
-        RemoveLine();
-        InputKey();
+        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
+        startDropT = clock();
+        CreateRandomForm();
+        system("cls");
+        DrawMap();
+
+        while (true)
+        {
+            DropBlock();
+            BlockToGround();
+            RemoveLine();
+            InputKey();
+            if (space[3][0] == 2) break; //Game Over 조건문, 실선을 넘으면 게임오버, 좀더 간단히 표현하고 싶었지만 fail...
+            if (space[3][1] == 2) break;
+            if (space[3][2] == 2) break;
+            if (space[3][3] == 2) break;
+            if (space[3][4] == 2) break;
+            if (space[3][5] == 2) break;
+            if (space[3][6] == 2) break;
+            if (space[3][7] == 2) break;
+            if (space[3][8] == 2) break;
+            if (space[3][9] == 2) break;
+            if (space[3][10] == 2) break;
+            if (space[3][11] == 2) break;
+        }
+
+        gotoxy(0 + m, 0 + n + 7); printf("▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣");
+        gotoxy(0 + m, 1 + n + 7); printf("▣                                              ▣");
+        gotoxy(0 + m, 2 + n + 7); printf("▣                                              ▣");
+        gotoxy(0 + m, 3 + n + 7); printf("▣          G A M E           O V E R           ▣");
+        gotoxy(0 + m, 4 + n + 7); printf("▣                                              ▣");
+        gotoxy(0 + m, 5 + n + 7); printf("▣                                              ▣");
+        gotoxy(0 + m, 6 + n + 7); printf("▣           Press any key to restart           ▣");
+        gotoxy(0 + m, 7 + n + 7); printf("▣                                              ▣");
+        gotoxy(0 + m, 8 + n + 7); printf("▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣▣");
+        while (_kbhit() == 0);         //좀 더 꾸밀필요가 있음, 여기서 한번 더 누르면 게임이 다시시작
+        for (int i = 0; i < 22; i++)   //처음으로 돌아가기전에 맵 클리어
+        {
+            for (int j = 1; j < 11; j++)
+            {
+                space[i][j] = 0;
+            }
+        }
     }
     return 0;
 }
@@ -373,7 +410,7 @@ void BlockToGround()
 
 void RemoveLine()
 {
-    for (int i = 20; i >= 0; i--)
+    for (int i = 22; i > 3; i--)
     {
         int cnt = 0;
         for (int j = 1; j < 11; j++)
@@ -403,8 +440,8 @@ void RemoveLine()
 
 void DrawMap()
 {
-    gotoxy(0, 0);
-    for (int i = 0; i < 21; i++)
+
+    for (int i = 0; i < 23; i++)
     {
         for (int j = 0; j < 12; j++)
         {
@@ -412,12 +449,6 @@ void DrawMap()
             if (space[i][j] == 1)
             {
                 setColor(0, 15);
-                printf("  ");
-                setColor(15, 0);
-            }
-            else if (space[i][j] == 2)
-            {
-                setColor(15, 14);
                 printf("  ");
                 setColor(15, 0);
             }
@@ -450,7 +481,7 @@ void DrawBlock()
     }
 
 
-    for (int i = 0; i <= 19; i++)
+    for (int i = 0; i < 22; i++)
     {
         for (int j = min; j <= max; j++)
         {
@@ -485,8 +516,13 @@ void DrawBlock()
 
 void EraseField()
 {
-    for (int i = 0; i <= 19; i++)
+    for (int i = 0; i < 22; i++)
     {
+        if (i == 3)
+        {
+            SolidLine();
+            i++;
+        }
         for (int j = 1; j < 11; j++)
         {
             gotoxy(g + j * 2, h + i);
@@ -499,7 +535,7 @@ void EraseField()
 
 void DrawField()
 {
-    for (int i = 0; i <= 19; i++)
+    for (int i = 0; i < 22; i++)
     {
         for (int j = 1; j < 11; j++)
         {
@@ -572,6 +608,17 @@ void InputKey()
             break;
         }
         DrawBlock();
-        /*system("cls");*/
+    }
+}
+
+void SolidLine()
+{
+    int i = 3;
+    for (int j = 1; j < 11; j++)
+    {
+        gotoxy(g + j * 2, h + i);
+        setColor(7, 0);
+        printf("_ ");
+        setColor(15, 0);
     }
 }
