@@ -1,23 +1,24 @@
 #include <stdio.h>
-#include <windows.h>                   //ÁÂÇ¥¸¦ ÀÌ¿ëÇÏ±â À§ÇØ¼­
-#include <conio.h>                      //_kbhit°ú _getch¸¦ ÀÌ¿ëÇÏ±â À§ÇØ¼­
-#include <time.h>                       //ÀÏÁ¤ ½Ã°£ µÚ¿¡ ÀÛ¾÷À» ÇÏ±â À§ÇØ¼­
-#include <stdbool.h>                    //true or false¸¦ ³ªÅ¸³»±â À§ÇØ¼­
+#include <windows.h>                   //ì¢Œí‘œë¥¼ ì´ìš©í•˜ê¸° ìœ„í•´ì„œ
+#include <conio.h>                      //_kbhitê³¼ _getchë¥¼ ì´ìš©í•˜ê¸° ìœ„í•´ì„œ
+#include <time.h>                       //ì¼ì • ì‹œê°„ ë’¤ì— ì‘ì—…ì„ í•˜ê¸° ìœ„í•´ì„œ
+#include <stdbool.h>                    //true or falseë¥¼ ë‚˜íƒ€ë‚´ê¸° ìœ„í•´ì„œ
 
-clock_t startDropT, endT, startGroundT; //½Ã°£¿¡ ´ëÇÑ º¯¼ö¸¦ ¼±¾ğ
-int x = 8, y = 0;                       //°ÔÀÓ ÇÊµå¸¦ ±×¸®±â ½ÃÀÛÇÏ´Â À§Ä¡
-int m = 10, n = 5;                      //¸Ç Ã³À½ ¸Ş´ºÈ­¸é ±×¸®±â ½ÃÀÛÇÏ´Â À§Ä¡
-int g = 23, h = 5;                      //(¹Î±Ô: 20->23À¸·Î ¼öÁ¤)
-RECT blockSize;                         //»ç°¢Çü ÁÂÇ¥¸¦ ÀúÀåÇÏ±â À§ÇÑ ÀÚ·áÇü
-int blockForm;                          //ºí·°ÀÇ Á¾·ù
-int blockRotation = 0;                  //ºí·° È¸Àü
-int key;                                //ÀÔ·ÂÇÑ Å°
-bool space_drop = false;                //½ºÆäÀÌ½º¹Ù¸¦ ´©¸£¸é ¹Ù·Î ¶³¾î¶ß¸®°í ¹Ù·Î ºí·ÏÀÇ À§Ä¡ °íÁ¤ <- »ìÂ¦ ¾Ö¸ÅÇÏ°Ô ±¸Çö
-bool run = true;                        //Âü°ªÀÌ¸é ½ÇÇà ¾Æ´Ï¸é Á¾·á
+clock_t startDropT, endT, startGroundT; //ì‹œê°„ì— ëŒ€í•œ ë³€ìˆ˜ë¥¼ ì„ ì–¸
+int x = 8, y = 0;                       //ê²Œì„ í•„ë“œë¥¼ ê·¸ë¦¬ê¸° ì‹œì‘í•˜ëŠ” ìœ„ì¹˜
+int m = 10, n = 5;                      //ë§¨ ì²˜ìŒ ë©”ë‰´í™”ë©´ ê·¸ë¦¬ê¸° ì‹œì‘í•˜ëŠ” ìœ„ì¹˜
+int g = 23, h = 5;                      //(ë¯¼ê·œ: 20->23ìœ¼ë¡œ ìˆ˜ì •)
+RECT blockSize;                         //ì‚¬ê°í˜• ì¢Œí‘œë¥¼ ì €ì¥í•˜ê¸° ìœ„í•œ ìë£Œí˜•
+int blockForm;                          //ë¸”ëŸ­ì˜ ì¢…ë¥˜
+int blockRotation = 0;                  //ë¸”ëŸ­ íšŒì „
+int key;                                //ì…ë ¥í•œ í‚¤
+bool space_drop = false;                //ìŠ¤í˜ì´ìŠ¤ë°”ë¥¼ ëˆ„ë¥´ë©´ ë°”ë¡œ ë–¨ì–´ëœ¨ë¦¬ê³  ë°”ë¡œ ë¸”ë¡ì˜ ìœ„ì¹˜ ê³ ì • <- ì‚´ì§ ì• ë§¤í•˜ê²Œ êµ¬í˜„
+bool run = true;                        //ì°¸ê°’ì´ë©´ ì‹¤í–‰ ì•„ë‹ˆë©´ ì¢…ë£Œ
+int score = 0;                          //ì²˜ìŒ ì ìˆ˜ 0ì ìœ¼ë¡œ ì„¤ì •
 
 
 int block[7][4][4][4] = {
-    { //T¸ğ¾ç ºí·°
+    { //Tëª¨ì–‘ ë¸”ëŸ­
         {
             {0,0,0,0},
             {0,1,0,0},
@@ -43,7 +44,7 @@ int block[7][4][4][4] = {
             {0,1,0,0}
         }
     },
-    { //¹ø°³ ºí·°
+    { //ë²ˆê°œ ë¸”ëŸ­
         {
             {0,0,0,0},
             {0,1,1,0},
@@ -69,7 +70,7 @@ int block[7][4][4][4] = {
             {0,1,0,0}
         }
     },
-    { //¹ø°³ ºí·° ¹İ´ë
+    { //ë²ˆê°œ ë¸”ëŸ­ ë°˜ëŒ€
         {
             {0,0,0,0},
             {1,1,0,0},
@@ -95,7 +96,7 @@ int block[7][4][4][4] = {
             {1,0,0,0}
         }
     },
-    { //1ÀÚÇü ºí·°
+    { //1ìí˜• ë¸”ëŸ­
         {
             {0,1,0,0},
             {0,1,0,0},
@@ -121,7 +122,7 @@ int block[7][4][4][4] = {
             {0,0,0,0}
         }
     },
-    { //LÀÚÇü ºí·°
+    { //Lìí˜• ë¸”ëŸ­
         {
             {0,0,0,0},
             {1,0,0,0},
@@ -147,7 +148,7 @@ int block[7][4][4][4] = {
             {0,0,0,0}
         }
     },
-    { //LÀÚÇü ºí·° ¹İ´ë
+    { //Lìí˜• ë¸”ëŸ­ ë°˜ëŒ€
         {
             {0,0,0,0},
             {0,0,1,0},
@@ -173,7 +174,7 @@ int block[7][4][4][4] = {
             {0,1,0,0}
         }
     },
-    { //³×¸ğ ºí·°
+    { //ë„¤ëª¨ ë¸”ëŸ­
         {
             {0,0,0,0},
             {0,1,1,0},
@@ -225,25 +226,28 @@ int space[22 + 1][10 + 2] = {
     {1,0,0,0,0,0,0,0,0,0,0,1},
     {1,0,0,0,0,0,0,0,0,0,0,1},
     {1,1,1,1,1,1,1,1,1,1,1,1}
-}; //³ôÀÌ¸¦ 20¿¡¼­ 23À¸·Î ´Ã·È½À´Ï´Ù.(Game Over ¾Ë°í¸®ÁòÀ» À§ÇØ)
+}; //ë†’ì´ë¥¼ 20ì—ì„œ 23ìœ¼ë¡œ ëŠ˜ë ¸ìŠµë‹ˆë‹¤.(Game Over ì•Œê³ ë¦¬ì¦˜ì„ ìœ„í•´)
 
-void Init();                           //ÄÜ¼ÖÃ¢ ±ôºıÀÌ ¹æÁö, Ä¿¼­ ¼û±â±â
-void gotoxy(int x, int y);             //xÁÂÇ¥ yÁÂÇ¥·Î Ä¿¼­ ¿Å±â±â
-void setColor(unsigned short text, unsigned short back); //±ÛÀÚ»ö, ¹è°æ»ö ¼³Á¤
-void CreateRandomForm();               //·£´ıÀ¸·Î 0~6°ªÀ» ¼±¾ğ
-bool CheckCrash(int x, int y);         //Ãæµ¹À» °¨ÁöÇÏ´Â ÇÔ¼ö ÇÏ³ª¶óµµ °ãÄ¡´Â °ÍÀÌ ÀÖ´Ù¸é true¹İÈ¯
-void DropBlock();                      //0.8ÃÊ¸¶´Ù ºí·°À» ÇÑÄ­¾¿ ¹ØÀ¸·Î ³»¸®´Â ÇÔ¼ö
-void EraseField();                     //ºí·ÏÀÌ ±×·ÁÁö´Â ÇÊµå¸¦ Áö¿ì´Â ÇÔ¼ö
-void DrawField();                      //ºí·ÏÀÌ ±×·ÁÁö´Â ÇÊµå¸¦ ±×¸®´Â ÇÔ¼ö
-void BlockToGround();                  //ºí·°ÀÌ ¶¥¹Ù´Ú¿¡ ´ê¾Æ ÀÖ´ÂÁö È®ÀÎÇÏ´Â ÇÔ¼ö
-void RemoveLine();                     //1ÁÙÀÌ µÇ¾ú´Ù¸é ºí·°À» Á¦°ÅÇÕ´Ï´Ù. ±× ÁÙ¿¡¼­ºÎÅÍ ½ÃÀÛÇØ¼­ ÇÑÄ­¾¿ ´Ù ¶¯±é´Ï´Ù.
-void DrawMap();                        //¸ÊÀÇ ÇüÅÂ(°¡ÀåÀÚ¸® ÅÂµÎ¸®)¸¸ ±×¸®±â
-void DrawBlock();                      //ºí·°À» ±×¸®±â
-void InputKey();                       //Å° ÀÔ·Â¹Ş±â
-void SolidLine();                      //EraseFiled ¾È¿¡ ÀÖ´Â ÇÔ¼ö, ½Ç¼±À» ±×¸®±â À§ÇÑ ÇÔ¼ö
+void Init();                           //ì½˜ì†”ì°½ ê¹œë¹¡ì´ ë°©ì§€, ì»¤ì„œ ìˆ¨ê¸°ê¸°
+void gotoxy(int x, int y);             //xì¢Œí‘œ yì¢Œí‘œë¡œ ì»¤ì„œ ì˜®ê¸°ê¸°
+void setColor(unsigned short text, unsigned short back); //ê¸€ììƒ‰, ë°°ê²½ìƒ‰ ì„¤ì •
+void CreateRandomForm();               //ëœë¤ìœ¼ë¡œ 0~6ê°’ì„ ì„ ì–¸
+bool CheckCrash(int x, int y);         //ì¶©ëŒì„ ê°ì§€í•˜ëŠ” í•¨ìˆ˜ í•˜ë‚˜ë¼ë„ ê²¹ì¹˜ëŠ” ê²ƒì´ ìˆë‹¤ë©´ trueë°˜í™˜
+void DropBlock();                      //0.8ì´ˆë§ˆë‹¤ ë¸”ëŸ­ì„ í•œì¹¸ì”© ë°‘ìœ¼ë¡œ ë‚´ë¦¬ëŠ” í•¨ìˆ˜
+void EraseField();                     //ë¸”ë¡ì´ ê·¸ë ¤ì§€ëŠ” í•„ë“œë¥¼ ì§€ìš°ëŠ” í•¨ìˆ˜
+void DrawField();                      //ë¸”ë¡ì´ ê·¸ë ¤ì§€ëŠ” í•„ë“œë¥¼ ê·¸ë¦¬ëŠ” í•¨ìˆ˜
+void BlockToGround();                  //ë¸”ëŸ­ì´ ë•…ë°”ë‹¥ì— ë‹¿ì•„ ìˆëŠ”ì§€ í™•ì¸í•˜ëŠ” í•¨ìˆ˜
+void RemoveLine();                     //1ì¤„ì´ ë˜ì—ˆë‹¤ë©´ ë¸”ëŸ­ì„ ì œê±°í•©ë‹ˆë‹¤. ê·¸ ì¤„ì—ì„œë¶€í„° ì‹œì‘í•´ì„œ í•œì¹¸ì”© ë‹¤ ë•¡ê¹ë‹ˆë‹¤.
+void DrawMap();                        //ë§µì˜ í˜•íƒœ(ê°€ì¥ìë¦¬ íƒœë‘ë¦¬)ë§Œ ê·¸ë¦¬ê¸°
+void DrawBlock();                      //ë¸”ëŸ­ì„ ê·¸ë¦¬ê¸°
+void InputKey();                       //í‚¤ ì…ë ¥ë°›ê¸°
+void SolidLine();                      //EraseFiled ì•ˆì— ìˆëŠ” í•¨ìˆ˜, ì‹¤ì„ ì„ ê·¸ë¦¬ê¸° ìœ„í•œ í•¨ìˆ˜
+void ScoreDisplay();                   //ì ìˆ˜íŒ í‘œì‹œ í•¨ìˆ˜
 
 
 int main() {
+
+    system("mode con cols=70 lines=40");    //cols = (ê°€ë¡œ)  lines =  (ì„¸ë¡œ)
 
     Init();
     int z;
@@ -251,13 +255,13 @@ int main() {
     int color = 1;
     while (_kbhit() == 0) {
         SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color % 16);	if (_kbhit()) break;
-        gotoxy(0 + m, 0 + n); printf("¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã"); Sleep(100); if (_kbhit()) break;
-        gotoxy(0 + m, 1 + n); printf("¢Ã¡á¡á¡á  ¡á¡á¡á  ¡á¡á¡á  ¡á¡á    ¡á¡á¡á  ¡á¡á¡á¢Ã"); Sleep(100); if (_kbhit()) break;
-        gotoxy(0 + m, 2 + n); printf("¢Ã  ¡á    ¡á        ¡á    ¡á  ¡á    ¡á    ¡á    ¢Ã"); Sleep(100); if (_kbhit()) break;
-        gotoxy(0 + m, 3 + n); printf("¢Ã  ¡á    ¡á¡á¡á    ¡á    ¡á¡á      ¡á    ¡á¡á¡á¢Ã"); Sleep(100); if (_kbhit()) break;
-        gotoxy(0 + m, 4 + n); printf("¢Ã  ¡á    ¡á        ¡á    ¡á  ¡á    ¡á        ¡á¢Ã"); Sleep(100); if (_kbhit()) break;
-        gotoxy(0 + m, 5 + n); printf("¢Ã  ¡á    ¡á¡á¡á    ¡á    ¡á  ¡á  ¡á¡á¡á  ¡á¡á¡á¢Ã"); Sleep(100); if (_kbhit()) break;
-        gotoxy(0 + m, 6 + n); printf("¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã"); Sleep(100); if (_kbhit()) break;
+        gotoxy(0 + m, 0 + n); printf("â–£â–£â–£â–£â–£â–£â–£â–£â–£â–£â–£â–£â–£â–£â–£â–£â–£â–£â–£â–£â–£â–£â–£â–£â–£"); Sleep(100); if (_kbhit()) break;
+        gotoxy(0 + m, 1 + n); printf("â–£â– â– â–   â– â– â–   â– â– â–   â– â–     â– â– â–   â– â– â– â–£"); Sleep(100); if (_kbhit()) break;
+        gotoxy(0 + m, 2 + n); printf("â–£  â–     â–         â–     â–   â–     â–     â–     â–£"); Sleep(100); if (_kbhit()) break;
+        gotoxy(0 + m, 3 + n); printf("â–£  â–     â– â– â–     â–     â– â–       â–     â– â– â– â–£"); Sleep(100); if (_kbhit()) break;
+        gotoxy(0 + m, 4 + n); printf("â–£  â–     â–         â–     â–   â–     â–         â– â–£"); Sleep(100); if (_kbhit()) break;
+        gotoxy(0 + m, 5 + n); printf("â–£  â–     â– â– â–     â–     â–   â–   â– â– â–   â– â– â– â–£"); Sleep(100); if (_kbhit()) break;
+        gotoxy(0 + m, 6 + n); printf("â–£â–£â–£â–£â–£â–£â–£â–£â–£â–£â–£â–£â–£â–£â–£â–£â–£â–£â–£â–£â–£â–£â–£â–£â–£"); Sleep(100); if (_kbhit()) break;
         gotoxy(0 + m, 7 + n); printf("                                                  "); Sleep(100); if (_kbhit()) break;
         gotoxy(13 + m, 9 + n); printf("Press any key to start");
         for (z = 0; z < 50; z++) {
@@ -285,7 +289,8 @@ int main() {
             BlockToGround();
             RemoveLine();
             InputKey();
-            if (space[3][0] == 2) break; //Game Over Á¶°Ç¹®, ½Ç¼±À» ³ÑÀ¸¸é °ÔÀÓ¿À¹ö, Á»´õ °£´ÜÈ÷ Ç¥ÇöÇÏ°í ½Í¾úÁö¸¸ fail...
+            ScoreDisplay();
+            if (space[3][0] == 2) break; //Game Over ì¡°ê±´ë¬¸, ì‹¤ì„ ì„ ë„˜ìœ¼ë©´ ê²Œì„ì˜¤ë²„, ì¢€ë” ê°„ë‹¨íˆ í‘œí˜„í•˜ê³  ì‹¶ì—ˆì§€ë§Œ fail...
             if (space[3][1] == 2) break;
             if (space[3][2] == 2) break;
             if (space[3][3] == 2) break;
@@ -299,17 +304,17 @@ int main() {
             if (space[3][11] == 2) break;
         }
 
-        gotoxy(0 + m, 0 + n + 7); printf("¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã");
-        gotoxy(0 + m, 1 + n + 7); printf("¢Ã                                              ¢Ã");
-        gotoxy(0 + m, 2 + n + 7); printf("¢Ã                                              ¢Ã");
-        gotoxy(0 + m, 3 + n + 7); printf("¢Ã          G A M E           O V E R           ¢Ã");
-        gotoxy(0 + m, 4 + n + 7); printf("¢Ã                                              ¢Ã");
-        gotoxy(0 + m, 5 + n + 7); printf("¢Ã                                              ¢Ã");
-        gotoxy(0 + m, 6 + n + 7); printf("¢Ã           Press any key to restart           ¢Ã");
-        gotoxy(0 + m, 7 + n + 7); printf("¢Ã                                              ¢Ã");
-        gotoxy(0 + m, 8 + n + 7); printf("¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã¢Ã");
-        while (_kbhit() == 0);         //Á» ´õ ²Ù¹ĞÇÊ¿ä°¡ ÀÖÀ½, ¿©±â¼­ ÇÑ¹ø ´õ ´©¸£¸é °ÔÀÓÀÌ ´Ù½Ã½ÃÀÛ
-        for (int i = 0; i < 22; i++)   //Ã³À½À¸·Î µ¹¾Æ°¡±âÀü¿¡ ¸Ê Å¬¸®¾î
+        gotoxy(0 + m, 0 + n + 7); printf("â–£â–£â–£â–£â–£â–£â–£â–£â–£â–£â–£â–£â–£â–£â–£â–£â–£â–£â–£â–£â–£â–£â–£â–£â–£");
+        gotoxy(0 + m, 1 + n + 7); printf("â–£                                              â–£");
+        gotoxy(0 + m, 2 + n + 7); printf("â–£                                              â–£");
+        gotoxy(0 + m, 3 + n + 7); printf("â–£          G A M E           O V E R           â–£");
+        gotoxy(0 + m, 4 + n + 7); printf("â–£                                              â–£");
+        gotoxy(0 + m, 5 + n + 7); printf("â–£                                              â–£");
+        gotoxy(0 + m, 6 + n + 7); printf("â–£           Press any key to restart           â–£");
+        gotoxy(0 + m, 7 + n + 7); printf("â–£                                              â–£");
+        gotoxy(0 + m, 8 + n + 7); printf("â–£â–£â–£â–£â–£â–£â–£â–£â–£â–£â–£â–£â–£â–£â–£â–£â–£â–£â–£â–£â–£â–£â–£â–£â–£");
+        while (_kbhit() == 0);         //ì¢€ ë” ê¾¸ë°€í•„ìš”ê°€ ìˆìŒ, ì—¬ê¸°ì„œ í•œë²ˆ ë” ëˆ„ë¥´ë©´ ê²Œì„ì´ ë‹¤ì‹œì‹œì‘
+        for (int i = 0; i < 22; i++)   //ì²˜ìŒìœ¼ë¡œ ëŒì•„ê°€ê¸°ì „ì— ë§µ í´ë¦¬ì–´
         {
             for (int j = 1; j < 11; j++)
             {
@@ -328,7 +333,7 @@ void Init()
     cursorInfo.bVisible = 0;
     cursorInfo.dwSize = 1;
     SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &cursorInfo);
-    srand(time(NULL)); //srand(): rand()ÀÇ ±Ù¿ø, time(null): ¿¾³¯ºÎÅÍ ÇöÀç±îÁöÀÇ Èå¸¥½Ã°£À» ÃÊ´ÜÀ§·Î »ı¼º
+    srand(time(NULL)); //srand(): rand()ì˜ ê·¼ì›, time(null): ì˜›ë‚ ë¶€í„° í˜„ì¬ê¹Œì§€ì˜ íë¥¸ì‹œê°„ì„ ì´ˆë‹¨ìœ„ë¡œ ìƒì„±
 }
 
 void gotoxy(int x, int y)
@@ -356,8 +361,8 @@ bool CheckCrash(int x, int y)
         {
             if (block[blockForm][blockRotation][i][j] == 1)
             {
-                int t = space[i + y][j + x / 2]; //xÁÂÇ¥´Â 2´ç 1Ä­À» ÀÇ¹ÌÇÏ±â ¶§¹®¿¡
-                if (t == 1 || t == 2) //º®(=1)ÀÏ ¶§, °íÁ¤µÈºí·°(=2)ÀÏ ¶§
+                int t = space[i + y][j + x / 2]; //xì¢Œí‘œëŠ” 2ë‹¹ 1ì¹¸ì„ ì˜ë¯¸í•˜ê¸° ë•Œë¬¸ì—
+                if (t == 1 || t == 2) //ë²½(=1)ì¼ ë•Œ, ê³ ì •ëœë¸”ëŸ­(=2)ì¼ ë•Œ
                 {
                     return true;
                 }
@@ -369,8 +374,8 @@ bool CheckCrash(int x, int y)
 
 void DropBlock()
 {
-    endT = clock(); //endT: ½Ã°£¿¡ ´ëÇÑ º¯¼ö, clock(): ÇÁ·Î¼¼½º°¡ ÇöÀç ½ÇÇà±îÁö °É¸° clock¼ö
-    if ((float)(endT - startDropT) >= 800) //(Á¾·á½ÃÁ¡ ½Ã°£ - ½ÃÀÛ½ÃÁ¡ ½Ã°£)
+    endT = clock(); //endT: ì‹œê°„ì— ëŒ€í•œ ë³€ìˆ˜, clock(): í”„ë¡œì„¸ìŠ¤ê°€ í˜„ì¬ ì‹¤í–‰ê¹Œì§€ ê±¸ë¦° clockìˆ˜
+    if ((float)(endT - startDropT) >= 800) //(ì¢…ë£Œì‹œì  ì‹œê°„ - ì‹œì‘ì‹œì  ì‹œê°„)
     {
         if (CheckCrash(x, y + 1) == true) return;
         y++;
@@ -384,8 +389,8 @@ void BlockToGround()
 {
     if (CheckCrash(x, y + 1) == true)
     {
-        if ((float)(endT - startGroundT) > 200 || space_drop) // ºí·°ÀÌ ¶¥¹Ù´Ú¿¡ ´êÀ¸¸é 0.2ÃÊÈÄ °íÁ¤
-        { //ÇöÀç ºí·° ÀúÀå
+        if ((float)(endT - startGroundT) > 200 || space_drop) // ë¸”ëŸ­ì´ ë•…ë°”ë‹¥ì— ë‹¿ìœ¼ë©´ 0.2ì´ˆí›„ ê³ ì •
+        { //í˜„ì¬ ë¸”ëŸ­ ì €ì¥
             for (int i = 0; i < 4; i++)
             {
                 for (int j = 0; j < 4; j++)
@@ -398,12 +403,13 @@ void BlockToGround()
             }
             x = 8;
             y = 0;
-            CreateRandomForm(); //·£´ıÇÑ ºí·°À» À§(8,0)·Î ¿Ã¸²
+            CreateRandomForm(); //ëœë¤í•œ ë¸”ëŸ­ì„ ìœ„(8,0)ë¡œ ì˜¬ë¦¼
+            score += 10;        //ë¸”ëŸ­ì„ ë–¨ì–´íŠ¸ë¦¬ëŠ” ê±¸ ì„±ê³µí•˜ê¸°ë§Œ í•˜ë©´ +10ì 
         }
     }
     if (space_drop)
     {
-        endT = startDropT + 800;//Áö±İÀ¸·Î¼­´Â ÀÌ ¹æ¹ıÀÌ ¹Ù·Î
+        endT = startDropT + 800;//ì§€ê¸ˆìœ¼ë¡œì„œëŠ” ì´ ë°©ë²•ì´ ë°”ë¡œ
         space_drop = false;
     }
 }
@@ -420,15 +426,16 @@ void RemoveLine()
                 cnt++;
             }
         }
-        if (cnt > 9) //º®µ¹ÀÌ ´Ù Â÷ÀÖ´Ù¸é
+        if (cnt > 9)         //ë²½ëŒì´ ë‹¤ ì°¨ìˆë‹¤ë©´
         {
+            score += 100;    //í•œ ì¤„ì„ ì œê±°í•  ë•Œë§ˆë‹¤ +100ì 
             for (int j = 0; i - j >= 0; j++)
             {
                 for (int x = 1; x < 11; x++)
                 {
                     if (i - j - 1 >= 0)
                         space[i - j][x] = space[i - j - 1][x];
-                    else //ÃµÀåÀÌ¸é 0ÀúÀå
+                    else     //ì²œì¥ì´ë©´ 0ì €ì¥
                         space[i - j][x] = 0;
                 }
             }
@@ -491,12 +498,6 @@ void DrawBlock()
             setColor(15, 0);
         }
     }
-
-    gotoxy(30, 30);
-    printf("                  ");
-    gotoxy(30, 30);
-    printf("%d, %d", min, max);
-
 
     for (int i = 0; i < 4; i++)
     {
@@ -621,4 +622,10 @@ void SolidLine()
         printf("_ ");
         setColor(15, 0);
     }
+}
+
+void ScoreDisplay()  //ì ìˆ˜íŒ í‘œì‹œ í•¨ìˆ˜
+{
+    gotoxy(50, 8);
+    printf("YOUR SCORE : %d", score);
 }
