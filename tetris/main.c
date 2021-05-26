@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <windows.h>                   //좌표를 이용하기 위해서
+#include <windows.h>                    //좌표를 이용하기 위해서
 #include <conio.h>                      //_kbhit과 _getch를 이용하기 위해서
 #include <time.h>                       //일정 시간 뒤에 작업을 하기 위해서
 #include <stdbool.h>                    //true or false를 나타내기 위해서
@@ -14,7 +14,7 @@ int blockRotation = 0;                  //블럭 회전
 int key;                                //입력한 키
 bool space_drop = false;                //스페이스바를 누르면 바로 떨어뜨리고 바로 블록의 위치 고정 <- 살짝 애매하게 구현
 bool run = true;                        //참값이면 실행 아니면 종료
-int score = 0;                          //처음 점수 0점으로 설정
+int score = 0;                          //처음 점수를 0으로 
 
 
 int block[7][4][4][4] = {
@@ -277,6 +277,7 @@ int main() {
 
     while (true)
     {
+        score = 0;  //처음 점수를 0으로 설정
         SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
         startDropT = clock();
         CreateRandomForm();
